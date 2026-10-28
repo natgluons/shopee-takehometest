@@ -2,3 +2,28 @@ instructions.txt
 customers-100000.csv
 customers-2000000.csv
 .env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Application data and generated reports
+data/
+reports/
+*.db
+*.db-wal
+*.db-shm
+
+# OS editors
+.DS_Store
