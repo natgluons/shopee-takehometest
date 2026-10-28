@@ -76,3 +76,20 @@ ignore = [
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "integration: end-to-end tests that exercise the API",
+    "docker: tests that require a running Docker daemon",
+    "slow: tests that process large datasets",
+]
+
+[tool.coverage.run]
+source = ["receipt_ai"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
