@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "receipt-ai"
 version = "0.1.0"
 description = "Receipt intelligence platform with OCR, SQLite persistence, a self-hosted vector store, and AI query tools"
+readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "Receipt AI maintainers" }]
