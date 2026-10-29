@@ -39,3 +39,24 @@ menu. You get reuse across clients without weakening the backend. The AI can cha
 tools, and each step is observable. That is much easier to debug than one giant prompt that tries
 to do everything.
 
+3. How do you make sure your AI agent answers correctly?
+
+I do not trust the model with raw data access. I give it a few small tools with strict input
+schemas and deterministic code behind them. The model picks a tool, my code validates the
+arguments, runs the query, and returns rows plus a short summary. If the tool finds nothing, the
+answer says there is no matching data instead of making something up.
+
+Dates and money are the usual trouble spots. I normalize dates to ISO format before querying and I
+store money as integer cents. I also tell the user which date range and filters were used. Every
+answer carries evidence, so a person can check the rows behind it.
+
+The next layer is testing. I test the tools directly with known fixtures, then I run end-to-end
+tests over the UI and API. For the model path I keep a small evaluation set of real questions with
+expected tool calls and expected numbers. If the prompt or model changes, the eval catches
+regressions.
+
+Finally I keep a human in the loop where it matters. Receipt OCR is reviewed before saving. The
+query page shows the evidence and a confidence note. Logs record tool arguments and result counts.
+And when no API key is present the app uses a deterministic router, so the core flow still works and
+can be verified without a model.
+
