@@ -179,7 +179,3 @@ take-home instructions to the implementation, tests, evidence, and phase branche
 See [`docs/assumptions.md`](docs/assumptions.md) and [`docs/limitations.md`](docs/limitations.md).
 The short version: this is a local single-user tool, SQLite is the system of record, the embedder is
 lexical, and OCR output is user-reviewed before it is trusted.
-
-## License
-
-MIT
