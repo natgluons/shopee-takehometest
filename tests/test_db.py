@@ -14,7 +14,7 @@ from receipt_ai.db.models import (
 from receipt_ai.db.repository import ReceiptNotFoundError, ReceiptRepository
 
 
-@pytest.fixture()
+@pytest.fixture
 def repository(tmp_path: Path) -> ReceiptRepository:
     repo = ReceiptRepository(tmp_path / "receipts.db")
     yield repo
@@ -67,9 +67,7 @@ def test_rejects_invalid_domain_values(repository: ReceiptRepository) -> None:
     with pytest.raises(ReceiptValidationError):
         repository.create_receipt(draft(tax_cents=-1))
     with pytest.raises(ReceiptValidationError):
-        repository.create_receipt(
-            draft(items=[ReceiptItemInput("Bad", 100, quantity=0)])
-        )
+        repository.create_receipt(draft(items=[ReceiptItemInput("Bad", 100, quantity=0)]))
 
 
 def test_database_constraints_are_enforced(repository: ReceiptRepository) -> None:
@@ -87,9 +85,9 @@ def test_delete_cascades_items(repository: ReceiptRepository) -> None:
     receipt = repository.create_receipt(draft())
     assert repository.delete_receipt(receipt.id) is True
     assert repository.delete_receipt(receipt.id) is False
-    count = repository.connection.execute(
-        "SELECT COUNT(*) AS count FROM receipt_items"
-    ).fetchone()["count"]
+    count = repository.connection.execute("SELECT COUNT(*) AS count FROM receipt_items").fetchone()[
+        "count"
+    ]
     assert count == 0
 
 
@@ -187,6 +185,4 @@ def test_insights(repository: ReceiptRepository) -> None:
     assert insights["totals"][0]["total_cents"] == 2000
     assert insights["by_day"][0]["date"] == "2026-06-21"
     assert insights["by_merchant"][0]["merchant"] == "Green Bowl"
-    assert any(
-        category["category"] == "drinks" for category in insights["by_category"]
-    )
+    assert any(category["category"] == "drinks" for category in insights["by_category"])

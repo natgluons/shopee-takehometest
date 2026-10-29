@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import os
 import tempfile
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from collections.abc import Iterator
 
 from PIL import Image, ImageFilter, ImageOps
 
@@ -13,7 +14,9 @@ DEFAULT_MAX_DIMENSION = 2200
 DEFAULT_MIN_DIMENSION = 1200
 
 
-def _target_size(width: int, height: int, min_dimension: int, max_dimension: int) -> tuple[int, int]:
+def _target_size(
+    width: int, height: int, min_dimension: int, max_dimension: int
+) -> tuple[int, int]:
     largest = max(width, height)
     if largest > max_dimension:
         scale = max_dimension / largest
@@ -48,9 +51,9 @@ def preprocess_image(
         grayscale = grayscale.filter(ImageFilter.UnsharpMask(radius=1.5, percent=140, threshold=3))
 
     if destination is None:
-        handle = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-        handle.close()
-        destination_path = Path(handle.name)
+        descriptor, name = tempfile.mkstemp(suffix=".png")
+        os.close(descriptor)
+        destination_path = Path(name)
     else:
         destination_path = Path(destination)
         destination_path.parent.mkdir(parents=True, exist_ok=True)

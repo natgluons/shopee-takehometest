@@ -22,7 +22,9 @@ class CollectionNotFoundError(KeyError):
 class VectorStore:
     """A small self-hosted vector database backed by SQLite."""
 
-    def __init__(self, path: str | Path | None = None, connection: sqlite3.Connection | None = None):
+    def __init__(
+        self, path: str | Path | None = None, connection: sqlite3.Connection | None = None
+    ):
         if connection is not None:
             self.connection = connection
             self._owns_connection = False
@@ -42,9 +44,7 @@ class VectorStore:
     def __exit__(self, exc_type: object, exc: object, traceback: object) -> None:
         self.close()
 
-    def create_collection(
-        self, name: str, dimension: int, metric: str = "cosine"
-    ) -> Collection:
+    def create_collection(self, name: str, dimension: int, metric: str = "cosine") -> Collection:
         name = name.strip()
         if not name:
             raise ValueError("collection name must not be empty")

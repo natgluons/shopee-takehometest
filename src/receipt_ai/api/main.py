@@ -110,21 +110,15 @@ def create_app(
 
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
     def index(request: Request) -> HTMLResponse:
-        return templates.TemplateResponse(
-            request, "index.html", {"active": "upload"}
-        )
+        return templates.TemplateResponse(request, "index.html", {"active": "upload"})
 
     @app.get("/history", response_class=HTMLResponse, include_in_schema=False)
     def history(request: Request) -> HTMLResponse:
-        return templates.TemplateResponse(
-            request, "history.html", {"active": "history"}
-        )
+        return templates.TemplateResponse(request, "history.html", {"active": "history"})
 
     @app.get("/query", response_class=HTMLResponse, include_in_schema=False)
     def query_page(request: Request) -> HTMLResponse:
-        return templates.TemplateResponse(
-            request, "query.html", {"active": "query"}
-        )
+        return templates.TemplateResponse(request, "query.html", {"active": "query"})
 
     @app.exception_handler(ReceiptNotFoundError)
     async def receipt_not_found(_: Request, exc: ReceiptNotFoundError) -> JSONResponse:
@@ -136,7 +130,9 @@ def create_app(
 
     @app.exception_handler(ReceiptValidationError)
     async def receipt_invalid(_: Request, exc: ReceiptValidationError) -> JSONResponse:
-        return JSONResponse({"detail": "invalid receipt", "problems": exc.problems}, status_code=422)
+        return JSONResponse(
+            {"detail": "invalid receipt", "problems": exc.problems}, status_code=422
+        )
 
     @app.exception_handler(VectorValidationError)
     async def vector_invalid(_: Request, exc: VectorValidationError) -> JSONResponse:
@@ -159,9 +155,7 @@ def create_app(
 
     @app.exception_handler(UploadValidationError)
     async def upload_invalid(_: Request, exc: UploadValidationError) -> JSONResponse:
-        return JSONResponse(
-            {"detail": "invalid upload", "problems": exc.problems}, status_code=422
-        )
+        return JSONResponse({"detail": "invalid upload", "problems": exc.problems}, status_code=422)
 
     @app.exception_handler(MoneyParseError)
     async def money_invalid(_: Request, exc: MoneyParseError) -> JSONResponse:

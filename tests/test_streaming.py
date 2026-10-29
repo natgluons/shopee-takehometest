@@ -28,7 +28,7 @@ def write_csv(path: Path, rows: list[str]) -> Path:
     return path
 
 
-@pytest.fixture()
+@pytest.fixture
 def clean_csv(tmp_path: Path) -> Path:
     rows = [
         "1,C001,United Kingdom,ada@example.com,2020-01-15",
@@ -40,7 +40,7 @@ def clean_csv(tmp_path: Path) -> Path:
     return write_csv(tmp_path / "clean.csv", rows)
 
 
-@pytest.fixture()
+@pytest.fixture
 def malformed_csv(tmp_path: Path) -> Path:
     rows = [
         "1,C001,United Kingdom,ada@example.com,2020-01-15",
@@ -170,9 +170,7 @@ def test_partitioned_writer_splits_by_year(clean_csv: Path, tmp_path: Path) -> N
         assert total == expected
 
 
-def test_partitioned_writer_handles_high_cardinality(
-    clean_csv: Path, tmp_path: Path
-) -> None:
+def test_partitioned_writer_handles_high_cardinality(clean_csv: Path, tmp_path: Path) -> None:
     result = stream_and_partition(
         clean_csv,
         tmp_path / "partitioned",

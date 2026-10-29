@@ -85,15 +85,18 @@ def validate_extraction(
 
     if subtotal is not None and items and abs(subtotal - items_total) > TOLERANCE_CENTS:
         problems.append(
-            f"subtotal {subtotal / 100:.2f} does not match item total "
-            f"{items_total / 100:.2f}"
+            f"subtotal {subtotal / 100:.2f} does not match item total {items_total / 100:.2f}"
         )
-    if subtotal is not None and total is not None and tax is not None:
-        if abs(total - (subtotal + tax)) > TOLERANCE_CENTS:
-            problems.append(
-                f"total {total / 100:.2f} does not equal subtotal "
-                f"{subtotal / 100:.2f} plus tax {tax / 100:.2f}"
-            )
+    if (
+        subtotal is not None
+        and total is not None
+        and tax is not None
+        and abs(total - (subtotal + tax)) > TOLERANCE_CENTS
+    ):
+        problems.append(
+            f"total {total / 100:.2f} does not equal subtotal "
+            f"{subtotal / 100:.2f} plus tax {tax / 100:.2f}"
+        )
 
     if problems:
         raise ExtractionValidationError(problems, warnings)

@@ -112,9 +112,7 @@ class IncrementalCsvReader:
                     continue
                 if len(values) > width:
                     self.stats.extra_field_rows += 1
-                    self.stats.record_malformed(
-                        f"extra fields: {values[width:]!r}", line_number
-                    )
+                    self.stats.record_malformed(f"extra fields: {values[width:]!r}", line_number)
                     continue
                 if len(values) < width:
                     missing = header[len(values) :]

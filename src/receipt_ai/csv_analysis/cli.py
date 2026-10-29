@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 from receipt_ai.csv_analysis.charts import generate_charts
 from receipt_ai.csv_analysis.quality import profile_quality

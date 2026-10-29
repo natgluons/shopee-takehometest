@@ -47,7 +47,9 @@ def _rss_mb() -> float:
     return round(usage / divisor, 2)
 
 
-def _measure(strategy: str, rows: int, function: Callable[[], Any], notes: str = "") -> tuple[BenchmarkResult, Any]:
+def _measure(
+    strategy: str, rows: int, function: Callable[[], Any], notes: str = ""
+) -> tuple[BenchmarkResult, Any]:
     gc.collect()
     tracemalloc.start()
     start = time.perf_counter()
@@ -137,7 +139,9 @@ def run_benchmark(
     """Compare naive loading, streaming, batching, and partitioned splits."""
     path = Path(path)
     results: list[BenchmarkResult] = []
-    row_count = min(limit, _count_rows_quick(path)) if limit is not None else _count_rows_quick(path)
+    row_count = (
+        min(limit, _count_rows_quick(path)) if limit is not None else _count_rows_quick(path)
+    )
 
     naive_result, _ = _measure(
         "naive_load",
@@ -153,7 +157,7 @@ def run_benchmark(
             row_count,
             lambda size=batch_size: _aggregate_limited(path, limit, size, config),
             notes="Single aggregator, one pass, chunk size equals batch size.",
-            )
+        )
         result.extra["batch_size"] = batch_size
         results.append(result)
 

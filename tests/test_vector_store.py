@@ -12,7 +12,7 @@ from receipt_ai.vector.store import CollectionNotFoundError, VectorStore
 from receipt_ai.vector.validation import VectorValidationError
 
 
-@pytest.fixture()
+@pytest.fixture
 def store(tmp_path: Path) -> VectorStore:
     database = VectorStore(tmp_path / "vectors.db")
     database.create_collection("receipts", 3)

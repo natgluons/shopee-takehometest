@@ -19,9 +19,7 @@ MONTH_DATE_RE = re.compile(
     re.IGNORECASE,
 )
 ITEM_PATTERNS = (
-    re.compile(
-        rf"^(?P<qty>\d+(?:[.,]\d+)?)\s*[xX]\s*(?P<name>.+?)\s+(?P<amount>{AMOUNT})\s*$"
-    ),
+    re.compile(rf"^(?P<qty>\d+(?:[.,]\d+)?)\s*[xX]\s*(?P<name>.+?)\s+(?P<amount>{AMOUNT})\s*$"),
     re.compile(rf"^(?P<name>[^\d].+?)\s+(?P<amount>{AMOUNT})\s*$"),
 )
 SKIP_KEYWORDS = (
@@ -109,9 +107,7 @@ def _looks_like_header(line: str) -> bool:
         return True
     if len(line) < 3:
         return True
-    if re.fullmatch(r"[\d\W]+", line):
-        return True
-    return False
+    return bool(re.fullmatch(r"[\d\W]+", line))
 
 
 def extract_merchant(lines: list[str]) -> str:

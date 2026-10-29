@@ -84,15 +84,13 @@ def _normalize_month_date(value: str, today: date, warnings: list[str]) -> date 
             continue
     for fmt in MONTH_DAY_FORMATS:
         try:
-            parsed = datetime.strptime(cleaned, fmt)
+            parsed = datetime.strptime(f"{cleaned} {today.year}", f"{fmt} %Y")
         except ValueError:
             continue
-        candidate = parsed.replace(year=today.year).date()
+        candidate = parsed.date()
         if candidate > today:
             candidate = candidate.replace(year=today.year - 1)
-            warnings.append(
-                f"no year in date {value!r}, using previous year {candidate.year}"
-            )
+            warnings.append(f"no year in date {value!r}, using previous year {candidate.year}")
         else:
             warnings.append(f"no year in date {value!r}, using {today.year}")
         return candidate
@@ -125,9 +123,7 @@ def parse_receipt_date(value: str, today: date | None = None) -> tuple[str, list
             month, day = first, second
         else:
             month, day = first, second
-            warnings.append(
-                f"ambiguous numeric date {text!r} interpreted as month/day"
-            )
+            warnings.append(f"ambiguous numeric date {text!r} interpreted as month/day")
         return date(year, month, day).isoformat(), warnings
 
     raise NormalizationError(f"could not parse date: {value!r}")
@@ -165,9 +161,7 @@ def normalize_item(raw: RawItem, warnings: list[str]) -> ReceiptItemInput | None
     )
 
 
-def _parse_optional_money(
-    value: str | None, label: str, warnings: list[str]
-) -> int | None:
+def _parse_optional_money(value: str | None, label: str, warnings: list[str]) -> int | None:
     if value is None:
         return None
     try:
@@ -203,9 +197,7 @@ def normalize_receipt(
 
     currency = (raw.currency or default_currency).upper()
     items = [
-        item
-        for raw_item in raw.items
-        if (item := normalize_item(raw_item, warnings)) is not None
+        item for raw_item in raw.items if (item := normalize_item(raw_item, warnings)) is not None
     ]
     subtotal = _parse_optional_money(raw.subtotal, "subtotal", warnings)
     tax = _parse_optional_money(raw.tax, "tax", warnings)
@@ -217,6 +209,12 @@ def normalize_receipt(
         warnings.append("total was inferred from line items and tax")
     if subtotal is None and items:
         subtotal = sum(item.line_total_cents for item in items)
+    if subtotal is None and total is not None:
+        assumed_tax = tax or 0
+        if total >= assumed_tax:
+            subtotal = total - assumed_tax
+            tax = assumed_tax
+            warnings.append("subtotal was inferred from total minus tax")
     if tax is None and total is not None and subtotal is not None:
         difference = total - subtotal
         if difference > 0:

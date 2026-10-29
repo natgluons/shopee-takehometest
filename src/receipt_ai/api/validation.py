@@ -115,9 +115,7 @@ def validate_upload(
     expected_extension_format = EXTENSION_FORMATS.get(extension)
     if expected_extension_format and expected_extension_format != image_format:
         raise UploadValidationError(
-            [
-                f"extension {extension} does not match image format {image_format}"
-            ]
+            [f"extension {extension} does not match image format {image_format}"]
         )
     if width < 1 or height < 1:
         raise UploadValidationError(["image dimensions must be positive"])
