@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 import receipt_ai
+from receipt_ai.api.routes import insights as insights_routes
 from receipt_ai.api.routes import query as query_routes
 from receipt_ai.api.routes import receipts as receipt_routes
 from receipt_ai.api.validation import UploadValidationError
@@ -84,6 +85,7 @@ def create_app(
     app.mount("/static", StaticFiles(directory=str(UI_DIR / "static")), name="static")
     app.include_router(receipt_routes.router)
     app.include_router(query_routes.router)
+    app.include_router(insights_routes.router)
 
     @app.get("/healthz", tags=["system"])
     def healthz() -> dict[str, str]:
@@ -110,6 +112,12 @@ def create_app(
     def index(request: Request) -> HTMLResponse:
         return templates.TemplateResponse(
             request, "index.html", {"active": "upload"}
+        )
+
+    @app.get("/history", response_class=HTMLResponse, include_in_schema=False)
+    def history(request: Request) -> HTMLResponse:
+        return templates.TemplateResponse(
+            request, "history.html", {"active": "history"}
         )
 
     @app.exception_handler(ReceiptNotFoundError)

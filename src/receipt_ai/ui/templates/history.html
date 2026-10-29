@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}History and insights - Receipt AI{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">Overview</p>
+    <h1>Receipt history and spending insights</h1>
+    <p class="lede">Every saved receipt is stored in SQLite. Filter by date, merchant, or item, and review where the money went.</p>
+  </div>
+</section>
+
+<section class="summary-grid" id="summary-cards">
+  <div class="card stat"><span class="stat-label">Saved receipts</span><strong id="stat-receipts">0</strong></div>
+  <div class="card stat"><span class="stat-label">Total spend</span><strong id="stat-total">0.00</strong></div>
+  <div class="card stat"><span class="stat-label">Top merchant</span><strong id="stat-merchant">-</strong></div>
+</section>
+
+<section class="card">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Search</p>
+      <h2>Receipts</h2>
+    </div>
+  </div>
+  <form id="filter-form" class="filters">
+    <label>From <input type="date" id="filter-from"></label>
+    <label>To <input type="date" id="filter-to"></label>
+    <label>Merchant <input type="search" id="filter-merchant" placeholder="Green Bowl"></label>
+    <label>Item <input type="search" id="filter-item" placeholder="hamburger"></label>
+    <button class="button" type="submit">Apply</button>
+    <button class="button ghost" type="button" id="clear-filters">Clear</button>
+  </form>
+  <div class="table-wrap">
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Merchant</th>
+          <th>Items</th>
+          <th class="num">Total</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="receipts-body"></tbody>
+    </table>
+  </div>
+  <p id="receipts-empty" class="empty" hidden>No saved receipts yet. Upload one to get started.</p>
+  <p id="receipts-status" class="status-inline"></p>
+</section>
+
+<section class="insight-grid">
+  <div class="card">
+    <p class="eyebrow">Merchants</p>
+    <h2>Where you spend</h2>
+    <div id="merchant-bars" class="bars"></div>
+  </div>
+  <div class="card">
+    <p class="eyebrow">Items</p>
+    <h2>Most bought</h2>
+    <div id="item-bars" class="bars"></div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/history.js" defer></script>
+{% endblock %}
