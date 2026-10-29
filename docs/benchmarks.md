@@ -8,7 +8,7 @@
 | Full 2M streaming aggregation | 2,000,000 rows, 349 MB | 17.57 s wall time, 58.7 MB maximum RSS | `docs/benchmark-results.md` |
 | 200k strategy comparison | 200,000 rows | naive 223.78 MB traced peak vs 10.81 MB streaming (batch 1,000) | `docs/benchmark-results.md` |
 | OCR extraction | 900x500 PNG receipt | about 0.11 s in the container | container smoke run |
-| Test suite | 98 tests | all passing locally | `pytest -q` |
+| Test suite | 102 tests | all passing locally | `pytest -q` |
 | Container smoke test | image | health, readiness, volume persistence passed | `scripts/verify_docker.sh` |
 
 The 200k comparison times in the JSON include `tracemalloc` tracing, which dominates CPU for this

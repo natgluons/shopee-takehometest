@@ -123,9 +123,10 @@ def main() -> int:
         ask(client, "Where did I buy hamburger from last 7 days?", purchase_date)
 
         insights = client.get("/api/insights").json()
-        totals = ", ".join(
-            f"{item['total']} {item['currency']}" for item in insights["totals"]
-        ) or "none"
+        totals = (
+            ", ".join(f"{item['total']} {item['currency']}" for item in insights["totals"])
+            or "none"
+        )
         print(f"\nInsights: {insights['receipt_count']} saved receipts, totals: {totals}")
         print(f"Open {BASE_URL} for the upload, history, and query pages.")
     return 0
