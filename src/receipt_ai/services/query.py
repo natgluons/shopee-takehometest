@@ -262,3 +262,51 @@ class QueryService:
             evidence=evidence,
             warnings=resolved.warnings,
         )
+
+    def get_food_expenses_by_date(
+        self, date_phrase: str, as_of: date | None = None
+    ) -> ToolResult:
+        resolved = resolve_date_range(date_phrase, today=as_of)
+        totals = self.repository.total_expenses(
+            resolved.start.isoformat(), resolved.end.isoformat(), status="saved"
+        )
+        receipts = self.repository.list_receipts(
+            date_from=resolved.start.isoformat(),
+            date_to=resolved.end.isoformat(),
+            status="saved",
+            limit=10_000,
+        )
+        evidence = [
+            {
+                "type": "receipt",
+                "receipt_id": receipt.id,
+                "merchant": receipt.merchant,
+                "purchase_date": receipt.purchase_date,
+                "total": cents_to_str(receipt.total_cents),
+                "currency": receipt.currency,
+            }
+            for receipt in receipts
+        ]
+        currencies = totals["currencies"]
+        if not currencies:
+            answer = f"I found no saved food expenses for {resolved.label}."
+        else:
+            rendered = ", ".join(
+                f"{item['total']} {item['currency']} across {item['receipt_count']} receipts"
+                for item in currencies
+            )
+            answer = f"Your total food expenses for {resolved.label} were {rendered}."
+        return ToolResult(
+            tool="get_food_expenses_by_date",
+            arguments={**resolved.to_dict(), "raw_date": date_phrase},
+            found=bool(currencies),
+            answer=answer,
+            data={
+                "date_from": resolved.start.isoformat(),
+                "date_to": resolved.end.isoformat(),
+                "currencies": currencies,
+                "receipt_count": totals["receipt_count"],
+            },
+            evidence=evidence,
+            warnings=resolved.warnings,
+        )
