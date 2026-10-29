@@ -18,6 +18,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--input", required=True, help="Path to the customer CSV")
     parser.add_argument("--batch-size", type=int, default=10_000)
     parser.add_argument("--top-n", type=int, default=10)
+    parser.add_argument(
+        "--categories",
+        default="Country",
+        help="Comma separated low-cardinality columns to aggregate",
+    )
     parser.add_argument("--outdir", default="reports")
     parser.add_argument("--benchmark", action="store_true", help="Run the comparison harness")
     parser.add_argument(
@@ -48,10 +53,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(json.dumps({"report": str(path), "results": report["results"]}, indent=2))
         return 0
 
-    config = AggregationConfig(
-        top_n=args.top_n,
-        categorical_columns=("Country", "City", "Company"),
+    categories = tuple(
+        name.strip() for name in args.categories.split(",") if name.strip()
     )
+    config = AggregationConfig(top_n=args.top_n, categorical_columns=categories)
     summary = aggregate_csv(args.input, batch_size=args.batch_size, config=config)
     path = outdir / "streaming-summary.json"
     path.write_text(json.dumps(summary, indent=2), encoding="utf-8")

@@ -21,8 +21,9 @@ from pathlib import Path
 from typing import Any
 
 from receipt_ai.streaming.aggregations import AggregationConfig, StreamingAggregator
+from receipt_ai.streaming.batch import chunked
 from receipt_ai.streaming.reader import IncrementalCsvReader
-from receipt_ai.streaming.writer import partition_by_date_year, stream_and_partition
+from receipt_ai.streaming.writer import partition_by_date_year
 
 
 @dataclass
@@ -80,8 +81,8 @@ def _aggregate_limited(
 ) -> dict[str, Any]:
     reader = IncrementalCsvReader(path, chunk_size=batch_size)
     aggregator = StreamingAggregator(config or AggregationConfig())
-    for row in _take(reader.iter_rows(), limit):
-        aggregator.add_row(row)
+    for batch in chunked(_take(reader.iter_rows(), limit), batch_size):
+        aggregator.add_rows(batch)
     summary = aggregator.summary()
     summary["reader"] = reader.stats.to_dict()
     return summary
@@ -90,6 +91,15 @@ def _aggregate_limited(
 def _naive_load(path: str | Path, limit: int | None) -> list[dict[str, str]]:
     reader = IncrementalCsvReader(path, chunk_size=1000)
     return list(_take(reader.iter_rows(), limit))
+
+
+def _naive_aggregate(
+    path: str | Path, limit: int | None, config: AggregationConfig | None = None
+) -> dict[str, Any]:
+    rows = _naive_load(path, limit)
+    aggregator = StreamingAggregator(config or AggregationConfig())
+    aggregator.add_rows(rows)
+    return aggregator.summary()
 
 
 def _split_limited(
@@ -129,16 +139,13 @@ def run_benchmark(
     results: list[BenchmarkResult] = []
     row_count = min(limit, _count_rows_quick(path)) if limit is not None else _count_rows_quick(path)
 
-    naive_result, naive_rows = _measure(
+    naive_result, _ = _measure(
         "naive_load",
         row_count,
-        lambda: _naive_load(path, limit),
-        notes="Materializes all selected rows in a list before aggregating.",
+        lambda: _naive_aggregate(path, limit, config),
+        notes="Materializes all selected rows in a list, then aggregates.",
     )
-    naive_aggregator = StreamingAggregator(config or AggregationConfig())
-    naive_aggregator.add_rows(naive_rows)
     results.append(naive_result)
-    del naive_rows
 
     for batch_size in batch_sizes:
         result, _ = _measure(
