@@ -160,22 +160,14 @@ docs/             engineering answers, architecture, API, benchmarks, limitation
 tests/            unit, integration, and Docker asset tests
 ```
 
-## Delivery and CI
+## Documentation
 
-- Multi-stage `Dockerfile` with Tesseract, non-root runtime, read-only root filesystem, and health
-  check.
-- `docker-compose.yml` with a persistent volume and health check.
-- GitHub Actions workflow runs Ruff lint, format check, the test suite, a container build, and a
-  container health smoke test.
-- Image publication strategy: [`docs/image-publication.md`](docs/image-publication.md).
+Start with [docs/acceptance-criteria.md](docs/acceptance-criteria.md) and
+[docs/assumptions.md](docs/assumptions.md). The engineering knowledge answers live in
+[docs/rest-vs-mcp.md](docs/rest-vs-mcp.md) and the related pages. Dataset findings are recorded in
+[docs/csv-insights.md](docs/csv-insights.md), and streaming trade-offs in
+[docs/streaming-tradeoffs.md](docs/streaming-tradeoffs.md).
 
-## Requirements mapping
+## License
 
-See [`docs/requirements-mapping.md`](docs/requirements-mapping.md) for a point-by-point map from the
-take-home instructions to the implementation, tests, evidence, and phase branches.
-
-## Assumptions and limitations
-
-See [`docs/assumptions.md`](docs/assumptions.md) and [`docs/limitations.md`](docs/limitations.md).
-The short version: this is a local single-user tool, SQLite is the system of record, the embedder is
-lexical, and OCR output is user-reviewed before it is trusted.
+MIT
