@@ -1,0 +1,22 @@
+KNOWLEDGE NOTES
+
+These are short casual answers to the five engineering questions. I kept them practical and
+focused on how the ideas show up in a real AI product.
+
+1. What is the difference between a REST API and MCP in the context of AI?
+
+A REST API is just a normal web interface. You pick a URL, send a method like GET or POST, and get
+back JSON. It is great when a service already exists and you want other programs to talk to it. The
+hard part for AI is that the model does not know which endpoint to call, what the parameters mean,
+or what the response looks like unless you tell it in the prompt or in your own code.
+
+MCP stands for Model Context Protocol. It is a standard way for an AI client to discover and call
+tools and read resources from a server. You describe a tool once with a name, a description, and a
+JSON schema, and the client can expose it to the model. The model can then ask to call the tool and
+the client handles the transport. MCP is more about giving the model a clean menu of capabilities
+and keeping that menu in sync. REST is about exposing resources over HTTP.
+
+So the simple version is this. REST is a transport and resource style that every backend already
+speaks. MCP is an AI-facing contract that tells a model what it can do and how to do it. You can
+put an MCP server on top of REST endpoints, and that is a very common pattern.
+
