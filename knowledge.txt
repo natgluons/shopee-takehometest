@@ -60,3 +60,26 @@ query page shows the evidence and a confidence note. Logs record tool arguments 
 And when no API key is present the app uses a deterministic router, so the core flow still works and
 can be verified without a model.
 
+4. What can you do with Docker or a containerized environment for AI?
+
+Docker gives you the same runtime everywhere. That matters a lot for AI because the stack is heavy
+and picky. You have Python versions, CUDA drivers, system libraries, OCR binaries, and model files.
+A container pins all of that. If it works on your laptop, it works in CI and on the server.
+
+It also keeps the host clean. You can install Tesseract, OpenCV, or a specific Torch build inside
+the image and not worry about breaking your machine. Different projects can need different CUDA
+versions and containers let them coexist.
+
+Containers help with deployment and scaling too. You can run several copies behind a load balancer,
+set memory and CPU limits, add health checks, and roll out a new image safely. For batch jobs like
+OCR or embedding generation you can spin up workers and scale them independently. You can run a
+local vector database or model server as another service in Compose or Kubernetes.
+
+There are limits. Containers are not great for long GPU training by themselves. You usually need a
+scheduler, persistent storage, and checkpointing. You also need to think about image size, secrets,
+and data volumes. Model weights should be mounted or pulled from a cache, not baked into a giant
+image every time. Data must live outside the container or it vanishes when the container does.
+
+In this project the container installs the app and Tesseract, runs as a non root user, uses a
+volume for SQLite and uploads, and exposes a health check. Compose makes the local run one command.
+
