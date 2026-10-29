@@ -150,13 +150,13 @@ class BloomFilter:
 @dataclass
 class AggregationConfig:
     numeric_columns: tuple[str, ...] = ("Index",)
-    categorical_columns: tuple[str, ...] = ("Country", "City", "Company")
+    categorical_columns: tuple[str, ...] = ("Country",)
     email_column: str = "Email"
     date_column: str = "Subscription Date"
     id_column: str = "Customer Id"
     top_n: int = 10
-    max_categories: int = 200_000
-    bloom_bits: int = 1 << 26
+    max_categories: int = 50_000
+    bloom_bits: int = 1 << 25
 
 
 @dataclass
