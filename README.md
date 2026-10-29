@@ -69,6 +69,8 @@ bash scripts/demo.sh
 
 The demo starts the Compose stack, generates a receipt image dated yesterday, uploads it through the
 API, saves it, and asks the three required questions. It prints the answers and the evidence counts.
+The recording storyboard and reference placeholder are in
+[`docs/demo-video.md`](docs/demo-video.md).
 
 ## Dataset commands
 
