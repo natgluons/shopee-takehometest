@@ -310,3 +310,90 @@ class QueryService:
             evidence=evidence,
             warnings=resolved.warnings,
         )
+
+    def find_merchant_by_item(
+        self,
+        item: str,
+        days: int = 7,
+        date_phrase: str | None = None,
+        as_of: date | None = None,
+    ) -> ToolResult:
+        item = item.strip()
+        if not item:
+            raise ValueError("item must not be empty")
+        today = as_of or date.today()
+        if date_phrase:
+            resolved = resolve_date_range(date_phrase, today=today)
+        else:
+            if days < 1:
+                raise ValueError("days must be at least 1")
+            start = today - timedelta(days=days - 1)
+            resolved = ResolvedDateRange(
+                start=start,
+                end=today,
+                label=f"the last {days} days",
+                raw=f"last {days} days",
+            )
+        receipts = self.repository.receipts_for_item(
+            item,
+            resolved.start.isoformat(),
+            resolved.end.isoformat(),
+            status="saved",
+        )
+        evidence: list[dict[str, Any]] = []
+        merchant_lines: list[str] = []
+        seen: set[tuple[str, str]] = set()
+        for receipt in receipts:
+            matching = [
+                item_row
+                for item_row in receipt.items
+                if item.lower() in item_row.description.lower()
+            ]
+            for item_row in matching:
+                evidence.append(
+                    {
+                        "type": "item",
+                        "receipt_id": receipt.id,
+                        "merchant": receipt.merchant,
+                        "purchase_date": receipt.purchase_date,
+                        "description": item_row.description,
+                        "line_total": cents_to_str(item_row.line_total_cents),
+                        "currency": receipt.currency,
+                    }
+                )
+            key = (receipt.merchant, receipt.purchase_date)
+            if key not in seen:
+                seen.add(key)
+                matching_total = sum(item_row.line_total_cents for item_row in matching)
+                merchant_lines.append(
+                    f"{receipt.merchant} on {receipt.purchase_date} "
+                    f"({cents_to_str(matching_total)} {receipt.currency})"
+                )
+        if not receipts:
+            answer = (
+                f"I could not find any saved purchases containing {item!r} in "
+                f"{resolved.label}."
+            )
+        else:
+            answer = f"You bought {item} from " + "; ".join(merchant_lines) + "."
+        return ToolResult(
+            tool="find_merchant_by_item",
+            arguments={
+                "item": item,
+                "days": days,
+                "date_from": resolved.start.isoformat(),
+                "date_to": resolved.end.isoformat(),
+                "raw_date": date_phrase,
+            },
+            found=bool(receipts),
+            answer=answer,
+            data={
+                "item": item,
+                "date_from": resolved.start.isoformat(),
+                "date_to": resolved.end.isoformat(),
+                "merchants": sorted({receipt.merchant for receipt in receipts}),
+                "receipt_count": len(receipts),
+            },
+            evidence=evidence,
+            warnings=resolved.warnings,
+        )
