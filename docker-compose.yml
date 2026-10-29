@@ -1,0 +1,38 @@
+services:
+  receipt-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: receipt-ai:local
+    init: true
+    ports:
+      - "8000:8000"
+    environment:
+      RECEIPT_AI_DATA_DIR: /app/data
+      RECEIPT_AI_DB_PATH: /app/data/receipts.db
+      RECEIPT_AI_VECTOR_DB_PATH: /app/data/vectors.db
+      RECEIPT_AI_UPLOAD_DIR: /app/data/uploads
+      RECEIPT_AI_OCR_LANG: eng
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+    volumes:
+      - receipt_data:/app/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  receipt_data:
+    name: receipt-ai-data
