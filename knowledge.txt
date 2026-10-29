@@ -20,3 +20,22 @@ So the simple version is this. REST is a transport and resource style that every
 speaks. MCP is an AI-facing contract that tells a model what it can do and how to do it. You can
 put an MCP server on top of REST endpoints, and that is a very common pattern.
 
+2. How can REST APIs and MCP improve an AI use case?
+
+REST is how the AI gets real work done. The model should not guess a SQL query or hold your
+business rules in its head. Give it an endpoint or a tool that does one safe thing, like fetch
+receipts for a date range. That gives you validation, permissions, audit logs, and a stable place
+to put transactions. When the model is wrong, the blast radius is small because the endpoint only
+allows a known operation with checked inputs.
+
+MCP improves the discovery and integration side. Instead of writing a custom prompt for every tool
+and hardcoding it into every assistant, you publish tools once. A client can list them, see their
+schemas, and let the model choose. This is nice when you have many tools or many assistants. It
+also keeps the description of a tool next to the implementation, so the model sees the current
+contract instead of an old prompt.
+
+Used together they are pretty strong. REST owns the operations and data. MCP owns the model-facing
+menu. You get reuse across clients without weakening the backend. The AI can chain a few narrow
+tools, and each step is observable. That is much easier to debug than one giant prompt that tries
+to do everything.
+
