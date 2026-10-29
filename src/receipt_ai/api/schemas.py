@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -51,3 +52,8 @@ class ReceiptPayload(BaseModel):
             raw_text=self.raw_text,
             status=self.status,
         )
+
+
+class QueryPayload(BaseModel):
+    question: str = Field(min_length=1, max_length=1000)
+    as_of: date | None = None

@@ -8,6 +8,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 import receipt_ai
+from receipt_ai.api.routes import query as query_routes
 from receipt_ai.api.routes import receipts as receipt_routes
 from receipt_ai.api.validation import UploadValidationError
 from receipt_ai.config import Settings, get_settings
@@ -16,6 +17,8 @@ from receipt_ai.db.repository import ReceiptNotFoundError, ReceiptRepository
 from receipt_ai.money import MoneyParseError
 from receipt_ai.ocr.engine import OCREngine, get_default_engine
 from receipt_ai.ocr.validation import ExtractionValidationError
+from receipt_ai.services.nl_query import NaturalLanguageQueryEngine, QueryEngineError
+from receipt_ai.services.query import QueryService
 from receipt_ai.services.receipts import ReceiptService
 from receipt_ai.vector.store import CollectionNotFoundError, VectorStore
 from receipt_ai.vector.validation import VectorValidationError
@@ -67,7 +70,12 @@ def create_app(
         ocr_engine=active_engine,
         settings=active_settings,
     )
+    app.state.query_service = QueryService(repository)
+    app.state.nl_query_engine = NaturalLanguageQueryEngine(
+        app.state.query_service, settings=active_settings
+    )
     app.include_router(receipt_routes.router)
+    app.include_router(query_routes.router)
 
     @app.get("/healthz", tags=["system"])
     def healthz() -> dict[str, str]:
@@ -113,6 +121,10 @@ def create_app(
     @app.exception_handler(VectorValidationError)
     async def vector_invalid(_: Request, exc: VectorValidationError) -> JSONResponse:
         return JSONResponse({"detail": "invalid vector", "problems": [str(exc)]}, status_code=422)
+
+    @app.exception_handler(QueryEngineError)
+    async def query_failed(_: Request, exc: QueryEngineError) -> JSONResponse:
+        return JSONResponse({"detail": "query failed", "problems": [str(exc)]}, status_code=422)
 
     @app.exception_handler(ExtractionValidationError)
     async def extraction_invalid(_: Request, exc: ExtractionValidationError) -> JSONResponse:
