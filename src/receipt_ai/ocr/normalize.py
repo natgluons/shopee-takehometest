@@ -219,9 +219,11 @@ def normalize_receipt(
         subtotal = sum(item.line_total_cents for item in items)
     if tax is None and total is not None and subtotal is not None:
         difference = total - subtotal
-        if difference >= 0:
+        if difference > 0:
             tax = difference
             warnings.append("tax was inferred from total minus subtotal")
+        elif difference == 0:
+            tax = 0
         else:
             warnings.append("total is lower than subtotal, tax could not be inferred")
 
