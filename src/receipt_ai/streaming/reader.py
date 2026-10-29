@@ -85,18 +85,21 @@ class IncrementalCsvReader:
     def _iter_dicts(self) -> Iterator[dict[str, str]]:
         delimiter = self._detect_delimiter()
         with self.path.open("r", encoding=self.encoding, newline="") as handle:
-            reader = csv.DictReader(
+            reader = csv.reader(
                 handle,
                 delimiter=delimiter,
                 quotechar=self.quotechar,
                 strict=self.strict,
             )
-            self.fieldnames = list(reader.fieldnames or [])
-            if not self.fieldnames:
-                raise ValueError(f"CSV file has no header: {self.path}")
+            try:
+                header = next(reader)
+            except StopIteration as exc:
+                raise ValueError(f"CSV file has no header: {self.path}") from exc
+            self.fieldnames = list(header)
+            width = len(header)
             while True:
                 try:
-                    row = next(reader)
+                    values = next(reader)
                 except StopIteration:
                     break
                 except csv.Error as error:
@@ -104,25 +107,22 @@ class IncrementalCsvReader:
                     self.stats.record_malformed(str(error), reader.line_num)
                     continue
                 line_number = reader.line_num
-                if all((value or "").strip() == "" for value in row.values()):
+                if not values or all(value.strip() == "" for value in values):
                     self.stats.blank_rows += 1
                     continue
-                extra_values = row.pop(None, None)
-                missing_values = [key for key, value in row.items() if value is None]
-                if extra_values:
+                if len(values) > width:
                     self.stats.extra_field_rows += 1
                     self.stats.record_malformed(
-                        f"extra fields: {extra_values!r}", line_number
+                        f"extra fields: {values[width:]!r}", line_number
                     )
                     continue
-                if missing_values:
+                if len(values) < width:
+                    missing = header[len(values) :]
                     self.stats.missing_field_rows += 1
-                    self.stats.record_malformed(
-                        f"missing fields: {missing_values!r}", line_number
-                    )
+                    self.stats.record_malformed(f"missing fields: {missing!r}", line_number)
                     continue
                 self.stats.total_rows += 1
-                yield dict(row)
+                yield dict(zip(header, values, strict=True))
 
     def iter_rows(self) -> Iterator[dict[str, str]]:
         """Yield one validated row at a time."""
