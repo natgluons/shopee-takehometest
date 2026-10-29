@@ -83,3 +83,35 @@ image every time. Data must live outside the container or it vanishes when the c
 In this project the container installs the app and Tesseract, runs as a non root user, uses a
 volume for SQLite and uploads, and exposes a health check. Compose makes the local run one command.
 
+5. How do you fine tune an LLM starting from raw data?
+
+You do not start by touching the model. You start with the data. Collect the raw text, logs, or
+documents, then clean it. Remove boilerplate, fix encoding, drop personal data you should not keep,
+and deduplicate near identical rows. Split it into train, validation, and a held out test set before
+you look at results. Leakage is the fastest way to fake a good score.
+
+Then pick the smallest training method that fits the goal. If you want the model to know the style
+and format of a task, supervised fine tuning on instruction and response pairs is enough. If you
+just want it to follow a house style, a few thousand high quality examples beat a million noisy
+ones. If you want new domain knowledge, you may need continued pretraining on a large clean corpus,
+and that is expensive. For most teams parameter efficient tuning like LoRA is the practical choice
+because it uses less memory and produces small adapters.
+
+Next is formatting. Every example needs a consistent chat template with system, user, and assistant
+turns. Tokenize with the exact tokenizer the base model expects and mask the prompt tokens so the
+loss is computed on the response. Watch sequence length and truncation. Confirm that special tokens
+are set correctly.
+
+Then train. Use a small learning rate, a reasonable batch size, gradient accumulation if memory is
+tight, and eval on the validation set every so often. Track loss but do not obsess over it. Keep an
+eye on overfitting. Save checkpoints and be able to resume. Mixed precision and gradient
+checkpointing help a lot.
+
+After training, evaluate properly. Run task specific metrics, compare against the base model on the
+same test set, and do human review on a sample. Check for regressions in safety and instruction
+following. Test with prompts that are worded differently from your training data.
+
+Finally deploy. Merge adapters if needed, quantize for cost, and serve behind the same evaluation
+harness. Keep a rollback path. Monitor real traffic and retrain when the data drifts. Fine tuning is
+a loop, not a one time step.
+
