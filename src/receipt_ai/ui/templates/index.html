@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Upload a receipt - Receipt AI{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">Step 1</p>
+    <h1>Upload a food receipt</h1>
+    <p class="lede">Drop a photo or scan. Local Tesseract extracts the merchant, date, items, and total. Review before saving.</p>
+  </div>
+</section>
+
+<section class="card upload-card">
+  <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Choose a receipt image">
+    <input id="file-input" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+    <p class="drop-title">Drop a receipt image here</p>
+    <p class="muted">PNG, JPEG, or WEBP up to 10 MB</p>
+    <button type="button" class="button secondary" id="choose-file">Choose file</button>
+    <p id="file-name" class="file-name"></p>
+  </div>
+  <img id="preview" class="preview" alt="Receipt preview" hidden>
+  <div id="upload-status" class="status" hidden></div>
+</section>
+
+<section id="review-section" class="card" hidden>
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Step 2</p>
+      <h2>Review extracted fields</h2>
+      <p class="muted">Correct anything that OCR misread. The saved record is the source of truth.</p>
+    </div>
+    <div id="ocr-meta" class="pill-group"></div>
+  </div>
+
+  <div id="review-warnings" class="warnings" hidden></div>
+
+  <form id="review-form" autocomplete="off">
+    <input type="hidden" id="receipt-id">
+    <input type="hidden" id="source-image">
+    <input type="hidden" id="raw-text">
+
+    <div class="grid two">
+      <label>Merchant
+        <input id="merchant" name="merchant" required maxlength="200">
+      </label>
+      <label>Purchase date
+        <input id="purchase-date" name="purchase_date" type="date" required>
+      </label>
+    </div>
+
+    <div class="grid three">
+      <label>Currency
+        <input id="currency" name="currency" maxlength="3" required>
+      </label>
+      <label>Tax
+        <input id="tax" name="tax" inputmode="decimal" value="0.00">
+      </label>
+      <label>Total
+        <input id="total" name="total" inputmode="decimal" readonly>
+      </label>
+    </div>
+
+    <div class="items-heading">
+      <h3>Items</h3>
+      <button type="button" class="button ghost" id="add-item">Add item</button>
+    </div>
+    <div class="table-wrap">
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th class="num">Qty</th>
+            <th class="num">Unit price</th>
+            <th class="num">Line total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="items-body"></tbody>
+      </table>
+    </div>
+    <p class="subtotal-line">Subtotal <strong id="subtotal-display">0.00</strong></p>
+
+    <details class="raw-text">
+      <summary>OCR raw text</summary>
+      <pre id="raw-text-display"></pre>
+    </details>
+
+    <div class="actions">
+      <button type="submit" class="button" id="save-receipt">Save receipt</button>
+      <span id="save-status" class="status-inline"></span>
+    </div>
+  </form>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/app.js" defer></script>
+{% endblock %}
