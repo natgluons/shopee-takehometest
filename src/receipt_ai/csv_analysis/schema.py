@@ -22,7 +22,7 @@ DATE_RE = re.compile(
 )
 INT_RE = re.compile(r"^-?\d+$")
 FLOAT_RE = re.compile(r"^-?\d+[.,]\d+$")
-PHONE_RE = re.compile(r"^\+?[\d\s().-]{7,}$")
+PHONE_RE = re.compile(r"^\+?[\d\s().-]{7,}(?:\s*(?:x|ext\.?)\s*\d+)?$", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -110,7 +110,11 @@ def infer_value_type(value: str) -> str:
     return "text"
 
 
-def _infer_column_type(values: list[str]) -> str:
+def _infer_column_type(values: list[str], name: str = "") -> str:
+    if "phone" in name.lower():
+        non_empty = [value.strip() for value in values if value.strip()]
+        if non_empty and all(PHONE_RE.match(value) for value in non_empty):
+            return "phone"
     types = [infer_value_type(value) for value in values if value.strip()]
     if not types:
         return "empty"
@@ -178,7 +182,7 @@ def inspect_schema(
         profiles.append(
             ColumnProfile(
                 name=name,
-                inferred_type=_infer_column_type(values),
+                inferred_type=_infer_column_type(values, name),
                 non_null=len(non_empty),
                 sampled=len(values),
                 distinct=distinct,

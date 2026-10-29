@@ -14,7 +14,7 @@ from typing import Any
 import pandas as pd
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$")
-PHONE_RE = re.compile(r"^\+?[\d\s().-]{7,}$")
+PHONE_RE = re.compile(r"^\+?[\d\s().-]{7,}(?:\s*(?:x|ext\.?)\s*\d+)?$", re.IGNORECASE)
 EXPECTED_COLUMNS = (
     "Index",
     "Customer Id",
