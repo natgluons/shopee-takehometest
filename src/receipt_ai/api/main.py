@@ -8,11 +8,15 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 import receipt_ai
+from receipt_ai.api.routes import receipts as receipt_routes
 from receipt_ai.api.validation import UploadValidationError
 from receipt_ai.config import Settings, get_settings
 from receipt_ai.db.models import ReceiptValidationError
 from receipt_ai.db.repository import ReceiptNotFoundError, ReceiptRepository
 from receipt_ai.money import MoneyParseError
+from receipt_ai.ocr.engine import OCREngine, get_default_engine
+from receipt_ai.ocr.validation import ExtractionValidationError
+from receipt_ai.services.receipts import ReceiptService
 from receipt_ai.vector.store import CollectionNotFoundError, VectorStore
 from receipt_ai.vector.validation import VectorValidationError
 
@@ -25,6 +29,7 @@ def create_app(
     settings: Settings | None = None,
     repository: ReceiptRepository | None = None,
     vector_store: VectorStore | None = None,
+    ocr_engine: OCREngine | None = None,
 ) -> FastAPI:
     active_settings = settings or get_settings()
     active_settings.ensure_directories()
@@ -49,10 +54,20 @@ def create_app(
         logger.exception("Failed to initialize the receipt vector collection")
         raise
 
+    active_engine = ocr_engine or get_default_engine(
+        language=active_settings.ocr_lang, command=active_settings.tesseract_cmd
+    )
     app.state.settings = active_settings
     app.state.repository = repository
     app.state.vector_store = vector_store
-    app.state.ocr_engine = None
+    app.state.ocr_engine = active_engine
+    app.state.receipt_service = ReceiptService(
+        repository=repository,
+        vector_store=vector_store,
+        ocr_engine=active_engine,
+        settings=active_settings,
+    )
+    app.include_router(receipt_routes.router)
 
     @app.get("/healthz", tags=["system"])
     def healthz() -> dict[str, str]:
@@ -98,6 +113,17 @@ def create_app(
     @app.exception_handler(VectorValidationError)
     async def vector_invalid(_: Request, exc: VectorValidationError) -> JSONResponse:
         return JSONResponse({"detail": "invalid vector", "problems": [str(exc)]}, status_code=422)
+
+    @app.exception_handler(ExtractionValidationError)
+    async def extraction_invalid(_: Request, exc: ExtractionValidationError) -> JSONResponse:
+        return JSONResponse(
+            {
+                "detail": "extraction validation failed",
+                "problems": exc.problems,
+                "warnings": exc.warnings,
+            },
+            status_code=422,
+        )
 
     @app.exception_handler(UploadValidationError)
     async def upload_invalid(_: Request, exc: UploadValidationError) -> JSONResponse:

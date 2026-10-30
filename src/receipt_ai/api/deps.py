@@ -6,6 +6,7 @@ from fastapi import Request
 
 from receipt_ai.config import Settings
 from receipt_ai.db.repository import ReceiptRepository
+from receipt_ai.services.receipts import ReceiptService
 from receipt_ai.vector.store import VectorStore
 
 
@@ -19,3 +20,7 @@ def get_repository(request: Request) -> ReceiptRepository:
 
 def get_vector_store(request: Request) -> VectorStore:
     return request.app.state.vector_store
+
+
+def get_receipt_service(request: Request) -> ReceiptService:
+    return request.app.state.receipt_service
