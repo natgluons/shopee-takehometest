@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Receipt AI{% endblock %}</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-mark">RA</span>
+      <div>
+        <strong>Receipt AI</strong>
+        <small>Food receipts, extracted and explained</small>
+      </div>
+    </div>
+    <nav>
+      <a href="/" class="{% if active == 'upload' %}active{% endif %}">Upload</a>
+      <a href="/history" class="{% if active == 'history' %}active{% endif %}">History</a>
+      <a href="/query" class="{% if active == 'query' %}active{% endif %}">Ask</a>
+      <a href="/api/docs" target="_blank" rel="noreferrer">API</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <span>Local OCR, SQLite, self-hosted vectors, grounded answers.</span>
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

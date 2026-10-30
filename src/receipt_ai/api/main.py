@@ -4,8 +4,12 @@ from __future__ import annotations
 
 import logging
 import sqlite3
+from pathlib import Path
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 import receipt_ai
 from receipt_ai.api.routes import query as query_routes
@@ -26,6 +30,7 @@ from receipt_ai.vector.validation import VectorValidationError
 logger = logging.getLogger("receipt_ai")
 
 VECTOR_COLLECTION = "receipts"
+UI_DIR = Path(__file__).resolve().parent.parent / "ui"
 
 
 def create_app(
@@ -74,6 +79,9 @@ def create_app(
     app.state.nl_query_engine = NaturalLanguageQueryEngine(
         app.state.query_service, settings=active_settings
     )
+    templates = Jinja2Templates(directory=str(UI_DIR / "templates"))
+    app.state.templates = templates
+    app.mount("/static", StaticFiles(directory=str(UI_DIR / "static")), name="static")
     app.include_router(receipt_routes.router)
     app.include_router(query_routes.router)
 
@@ -99,11 +107,9 @@ def create_app(
         )
 
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
-    def index() -> HTMLResponse:
-        return HTMLResponse(
-            "<!doctype html><html><head><title>Receipt AI</title></head>"
-            "<body><h1>Receipt AI</h1><p>The web interface is available in the UI phase.</p>"
-            "<p><a href='/api/docs'>API documentation</a></p></body></html>"
+    def index(request: Request) -> HTMLResponse:
+        return templates.TemplateResponse(
+            request, "index.html", {"active": "upload"}
         )
 
     @app.exception_handler(ReceiptNotFoundError)
