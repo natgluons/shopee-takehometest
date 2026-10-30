@@ -8,6 +8,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 import receipt_ai
+from receipt_ai.api.validation import UploadValidationError
 from receipt_ai.config import Settings, get_settings
 from receipt_ai.db.models import ReceiptValidationError
 from receipt_ai.db.repository import ReceiptNotFoundError, ReceiptRepository
@@ -97,6 +98,12 @@ def create_app(
     @app.exception_handler(VectorValidationError)
     async def vector_invalid(_: Request, exc: VectorValidationError) -> JSONResponse:
         return JSONResponse({"detail": "invalid vector", "problems": [str(exc)]}, status_code=422)
+
+    @app.exception_handler(UploadValidationError)
+    async def upload_invalid(_: Request, exc: UploadValidationError) -> JSONResponse:
+        return JSONResponse(
+            {"detail": "invalid upload", "problems": exc.problems}, status_code=422
+        )
 
     @app.exception_handler(MoneyParseError)
     async def money_invalid(_: Request, exc: MoneyParseError) -> JSONResponse:
