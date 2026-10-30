@@ -43,9 +43,7 @@ class Settings:
     def from_env(cls) -> Settings:
         data_dir = _env_path("RECEIPT_AI_DATA_DIR", Path("data"))
         db_path = _env_path("RECEIPT_AI_DB_PATH", data_dir / "receipts.db")
-        vector_db_path = _env_path(
-            "RECEIPT_AI_VECTOR_DB_PATH", data_dir / "vectors.db"
-        )
+        vector_db_path = _env_path("RECEIPT_AI_VECTOR_DB_PATH", data_dir / "vectors.db")
         upload_dir = _env_path("RECEIPT_AI_UPLOAD_DIR", data_dir / "uploads")
         return cls(
             data_dir=data_dir,
@@ -57,9 +55,9 @@ class Settings:
             tesseract_cmd=os.environ.get("RECEIPT_AI_TESSERACT_CMD", "tesseract"),
             vector_dimension=_env_int("RECEIPT_AI_VECTOR_DIMENSION", 256),
             openai_api_key=os.environ.get("OPENAI_API_KEY") or None,
-            openai_base_url=os.environ.get(
-                "OPENAI_BASE_URL", "https://api.openai.com/v1"
-            ).rstrip("/"),
+            openai_base_url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip(
+                "/"
+            ),
             openai_model=os.environ.get("OPENAI_MODEL", "gpt-4o-mini"),
             llm_timeout_seconds=float(os.environ.get("RECEIPT_AI_LLM_TIMEOUT", "30")),
         )

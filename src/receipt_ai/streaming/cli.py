@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 from receipt_ai.streaming.aggregations import AggregationConfig, aggregate_csv
 from receipt_ai.streaming.benchmark import run_benchmark
@@ -53,9 +53,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(json.dumps({"report": str(path), "results": report["results"]}, indent=2))
         return 0
 
-    categories = tuple(
-        name.strip() for name in args.categories.split(",") if name.strip()
-    )
+    categories = tuple(name.strip() for name in args.categories.split(",") if name.strip())
     config = AggregationConfig(top_n=args.top_n, categorical_columns=categories)
     summary = aggregate_csv(args.input, batch_size=args.batch_size, config=config)
     path = outdir / "streaming-summary.json"

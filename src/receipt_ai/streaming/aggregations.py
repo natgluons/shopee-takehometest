@@ -125,9 +125,7 @@ class BloomFilter:
     def check_and_add(self, value: str) -> bool:
         """Return True when the value was probably seen before, then add it."""
         positions = self._positions(value)
-        present = all(
-            self._buffer[position // 8] & (1 << (position % 8)) for position in positions
-        )
+        present = all(self._buffer[position // 8] & (1 << (position % 8)) for position in positions)
         for position in positions:
             self._buffer[position // 8] |= 1 << (position % 8)
         self.insertions += 1
@@ -257,7 +255,9 @@ class StreamingAggregator:
             "dates": {
                 "min": self.date_min.isoformat() if self.date_min else None,
                 "max": self.date_max.isoformat() if self.date_max else None,
-                "by_year": {str(key): int(value) for key, value in sorted(self.dates_by_year.items())},
+                "by_year": {
+                    str(key): int(value) for key, value in sorted(self.dates_by_year.items())
+                },
                 "invalid": self.invalid_dates,
             },
             "identifiers": {

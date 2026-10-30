@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
 from uuid import uuid4
 
@@ -48,7 +48,7 @@ class ReceiptService:
         self.collection = collection
 
     def _store_upload(self, info: UploadInfo, content: bytes) -> Path:
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
+        timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
         filename = f"{timestamp}_{uuid4().hex[:12]}{info.extension}"
         path = self.settings.upload_dir / filename
         path.parent.mkdir(parents=True, exist_ok=True)

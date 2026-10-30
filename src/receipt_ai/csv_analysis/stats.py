@@ -61,9 +61,7 @@ def subscription_timeline(frame: pd.DataFrame) -> dict[str, Any]:
     }
 
 
-def categorical_distribution(
-    frame: pd.DataFrame, column: str, top_n: int = 15
-) -> dict[str, Any]:
+def categorical_distribution(frame: pd.DataFrame, column: str, top_n: int = 15) -> dict[str, Any]:
     """Return the top values and their share of non-null rows."""
     if column not in frame:
         return {}
@@ -97,7 +95,11 @@ def email_domain_distribution(frame: pd.DataFrame, top_n: int = 15) -> dict[str,
         "distinct": int(counts.size),
         "top": {str(key): int(value) for key, value in counts.head(top_n).items()},
         "free_email_share": round(
-            int(counts[counts.index.isin({"gmail.com", "yahoo.com", "hotmail.com", "outlook.com"})].sum())
+            int(
+                counts[
+                    counts.index.isin({"gmail.com", "yahoo.com", "hotmail.com", "outlook.com"})
+                ].sum()
+            )
             / total,
             6,
         ),
@@ -108,8 +110,7 @@ def describe_dataset(path: str | Path) -> dict[str, Any]:
     """Return descriptive statistics for a customer CSV file."""
     frame = pd.read_csv(path, dtype=str, low_memory=False)
     categorical = {
-        column: categorical_distribution(frame, column)
-        for column in DEFAULT_CATEGORICAL_COLUMNS
+        column: categorical_distribution(frame, column) for column in DEFAULT_CATEGORICAL_COLUMNS
     }
     return {
         "path": str(path),

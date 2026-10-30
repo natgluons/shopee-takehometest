@@ -117,15 +117,11 @@ class ToolRegistry:
         if name == "get_purchases_by_date":
             self._require(arguments, "date")
             self._reject_unknown(arguments, {"date", "as_of"})
-            return self.query_service.get_purchases_by_date(
-                str(arguments["date"]), as_of=as_of
-            )
+            return self.query_service.get_purchases_by_date(str(arguments["date"]), as_of=as_of)
         if name == "get_food_expenses_by_date":
             self._require(arguments, "date")
             self._reject_unknown(arguments, {"date", "as_of"})
-            return self.query_service.get_food_expenses_by_date(
-                str(arguments["date"]), as_of=as_of
-            )
+            return self.query_service.get_food_expenses_by_date(str(arguments["date"]), as_of=as_of)
         if name == "find_merchant_by_item":
             self._require(arguments, "item")
             self._reject_unknown(arguments, {"item", "days", "date", "as_of"})

@@ -28,9 +28,7 @@ def validate_vector(
     if not values:
         raise VectorValidationError(f"{name} must not be empty")
     if dimension is not None and len(values) != dimension:
-        raise VectorValidationError(
-            f"{name} has dimension {len(values)}, expected {dimension}"
-        )
+        raise VectorValidationError(f"{name} has dimension {len(values)}, expected {dimension}")
     if not all(math.isfinite(value) for value in values):
         raise VectorValidationError(f"{name} must contain only finite values")
     if not allow_zero and not any(value != 0.0 for value in values):

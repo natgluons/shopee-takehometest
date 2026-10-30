@@ -21,9 +21,7 @@ from receipt_ai.vector.validation import (
 def dot_product(left: Sequence[float], right: Sequence[float]) -> float:
     """Return the dot product of two equal-length vectors."""
     if len(left) != len(right):
-        raise VectorValidationError(
-            f"dimension mismatch: {len(left)} and {len(right)}"
-        )
+        raise VectorValidationError(f"dimension mismatch: {len(left)} and {len(right)}")
     return math.fsum(float(a) * float(b) for a, b in zip(left, right, strict=True))
 
 
@@ -32,9 +30,7 @@ def cosine_similarity(left: Sequence[float], right: Sequence[float]) -> float:
     first = validate_vector(left, allow_zero=True, name="left vector")
     second = validate_vector(right, allow_zero=True, name="right vector")
     if len(first) != len(second):
-        raise VectorValidationError(
-            f"dimension mismatch: {len(first)} and {len(second)}"
-        )
+        raise VectorValidationError(f"dimension mismatch: {len(first)} and {len(second)}")
     first_norm = l2_norm(first)
     second_norm = l2_norm(second)
     if first_norm == 0.0 or second_norm == 0.0:
@@ -47,10 +43,10 @@ def cosine_similarity(left: Sequence[float], right: Sequence[float]) -> float:
 def euclidean_distance(left: Sequence[float], right: Sequence[float]) -> float:
     """Return Euclidean distance between two equal-length vectors."""
     if len(left) != len(right):
-        raise VectorValidationError(
-            f"dimension mismatch: {len(left)} and {len(right)}"
-        )
-    return math.sqrt(math.fsum((float(a) - float(b)) ** 2 for a, b in zip(left, right, strict=True)))
+        raise VectorValidationError(f"dimension mismatch: {len(left)} and {len(right)}")
+    return math.sqrt(
+        math.fsum((float(a) - float(b)) ** 2 for a, b in zip(left, right, strict=True))
+    )
 
 
 def top_k_cosine(

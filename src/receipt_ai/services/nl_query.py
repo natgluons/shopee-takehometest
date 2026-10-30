@@ -182,9 +182,7 @@ class NaturalLanguageQueryEngine:
             )
 
     @staticmethod
-    def _response(
-        question: str, as_of: date, engine: str, result: ToolResult
-    ) -> QueryResponse:
+    def _response(question: str, as_of: date, engine: str, result: ToolResult) -> QueryResponse:
         return QueryResponse(
             question=question,
             answer=result.answer,

@@ -142,9 +142,7 @@ def contactability_segments(frame: pd.DataFrame) -> dict[str, Any]:
     }
 
 
-def segmentation_report(
-    path: str | Path, reference_date: str | None = None
-) -> dict[str, Any]:
+def segmentation_report(path: str | Path, reference_date: str | None = None) -> dict[str, Any]:
     """Return all segmentation views for a customer CSV file."""
     frame = pd.read_csv(path, dtype=str, low_memory=False)
     return {

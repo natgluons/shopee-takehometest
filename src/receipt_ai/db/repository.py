@@ -39,7 +39,9 @@ def _validate_date(value: str, name: str = "date") -> str:
 class ReceiptRepository:
     """SQLite repository for receipts and line items."""
 
-    def __init__(self, path: str | Path | None = None, connection: sqlite3.Connection | None = None):
+    def __init__(
+        self, path: str | Path | None = None, connection: sqlite3.Connection | None = None
+    ):
         if connection is not None:
             self.connection = connection
             self._owns_connection = False
@@ -72,10 +74,7 @@ class ReceiptRepository:
         tax = normalized.tax_cents
         if items and subtotal != items_subtotal:
             raise MonetaryIntegrityError(
-                [
-                    f"subtotal {subtotal} does not equal the sum of item totals "
-                    f"{items_subtotal}"
-                ]
+                [f"subtotal {subtotal} does not equal the sum of item totals {items_subtotal}"]
             )
         if normalized.total_cents is None:
             total = subtotal + tax
@@ -83,9 +82,7 @@ class ReceiptRepository:
             total = normalized.total_cents
             if total != subtotal + tax:
                 raise MonetaryIntegrityError(
-                    [
-                        f"total {total} does not equal subtotal {subtotal} plus tax {tax}"
-                    ]
+                    [f"total {total} does not equal subtotal {subtotal} plus tax {tax}"]
                 )
         if total < 0:
             raise MonetaryIntegrityError(["total must not be negative"])
@@ -148,9 +145,7 @@ class ReceiptRepository:
             )
             if cursor.rowcount == 0:
                 raise ReceiptNotFoundError(receipt_id)
-            self.connection.execute(
-                "DELETE FROM receipt_items WHERE receipt_id = ?", (receipt_id,)
-            )
+            self.connection.execute("DELETE FROM receipt_items WHERE receipt_id = ?", (receipt_id,))
             self._insert_items(receipt_id, items)
         receipt = self.get_receipt(receipt_id)
         if receipt is None:
@@ -246,9 +241,7 @@ class ReceiptRepository:
 
     def purchases_on(self, day: str, status: str | None = "saved") -> list[Receipt]:
         day = _validate_date(day, "day")
-        return self.list_receipts(
-            date_from=day, date_to=day, status=status, limit=10_000
-        )
+        return self.list_receipts(date_from=day, date_to=day, status=status, limit=10_000)
 
     def total_expenses(
         self,
@@ -315,7 +308,7 @@ class ReceiptRepository:
             f"""
             SELECT DISTINCT r.* FROM receipts r
             JOIN receipt_items i ON i.receipt_id = r.id
-            WHERE {' AND '.join(clauses)}
+            WHERE {" AND ".join(clauses)}
             ORDER BY r.purchase_date DESC, r.id DESC
             """,
             parameters,
@@ -352,7 +345,7 @@ class ReceiptRepository:
             f"""
             SELECT i.description, COUNT(*) AS occurrences, SUM(i.line_total_cents) AS total_cents
             FROM receipt_items i JOIN receipts r ON r.id = i.receipt_id
-            {status_clause.replace('status', 'r.status')}
+            {status_clause.replace("status", "r.status")}
             GROUP BY LOWER(i.description)
             ORDER BY occurrences DESC, total_cents DESC LIMIT 10
             """,
@@ -363,7 +356,7 @@ class ReceiptRepository:
             SELECT COALESCE(i.category, 'uncategorized') AS category,
                    SUM(i.line_total_cents) AS total_cents, COUNT(*) AS item_count
             FROM receipt_items i JOIN receipts r ON r.id = i.receipt_id
-            {status_clause.replace('status', 'r.status')}
+            {status_clause.replace("status", "r.status")}
             GROUP BY COALESCE(i.category, 'uncategorized')
             ORDER BY total_cents DESC
             """,
@@ -461,8 +454,7 @@ class ReceiptRepository:
         )
 
     def iter_receipts(self, status: str | None = "saved") -> Iterator[Receipt]:
-        for receipt in self.list_receipts(status=status, limit=1_000_000):
-            yield receipt
+        yield from self.list_receipts(status=status, limit=1_000_000)
 
 
 __all__ = [

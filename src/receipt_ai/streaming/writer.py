@@ -114,9 +114,7 @@ class PartitionedCsvWriter:
         )
         if is_new:
             writer.writeheader()
-        record = self.manifest.partitions.setdefault(
-            partition, {"rows": 0, "files": []}
-        )
+        record = self.manifest.partitions.setdefault(partition, {"rows": 0, "files": []})
         if str(path) not in record["files"]:
             record["files"].append(str(path))
         return _PartitionHandle(handle=handle, writer=writer, part=part)
@@ -139,9 +137,7 @@ class PartitionedCsvWriter:
             self._handles.move_to_end(partition)
         record.writer.writerow(row)
         record.rows += 1
-        record_entry = self.manifest.partitions.setdefault(
-            partition, {"rows": 0, "files": []}
-        )
+        record_entry = self.manifest.partitions.setdefault(partition, {"rows": 0, "files": []})
         record_entry["rows"] += 1
         self.manifest.total_rows += 1
         if self.max_rows_per_file and record.rows >= self.max_rows_per_file:

@@ -123,9 +123,7 @@ def resolve_date_range(text: str, today: date | None = None) -> ResolvedDateRang
         if days < 1:
             raise DateResolutionError("day window must be at least one")
         start = today - timedelta(days=days - 1)
-        return ResolvedDateRange(
-            start, today, f"the last {days} days", raw, warnings
-        )
+        return ResolvedDateRange(start, today, f"the last {days} days", raw, warnings)
     if "last week" in lowered or "past week" in lowered:
         start = today - timedelta(days=6)
         return ResolvedDateRange(start, today, "the last 7 days", raw, warnings)
@@ -182,9 +180,7 @@ def resolve_date_range(text: str, today: date | None = None) -> ResolvedDateRang
         else:
             month, day = first, second
             warnings.append("ambiguous numeric date interpreted as month/day")
-        year = _safe_year(
-            int(year_part) if year_part else None, month, day, today, warnings
-        )
+        year = _safe_year(int(year_part) if year_part else None, month, day, today, warnings)
         target = date(year, month, day)
         return ResolvedDateRange(target, target, target.isoformat(), raw, warnings)
 
@@ -205,9 +201,7 @@ class QueryService:
     def __init__(self, repository: ReceiptRepository) -> None:
         self.repository = repository
 
-    def get_purchases_by_date(
-        self, date_phrase: str, as_of: date | None = None
-    ) -> ToolResult:
+    def get_purchases_by_date(self, date_phrase: str, as_of: date | None = None) -> ToolResult:
         resolved = resolve_date_range(date_phrase, today=as_of)
         receipts = self.repository.list_receipts(
             date_from=resolved.start.isoformat(),
@@ -245,9 +239,7 @@ class QueryService:
                 f"{receipt.currency})"
                 for receipt in receipts
             )
-            answer = (
-                f"You bought food {resolved.label}. Receipts: {detail}. Total: {totals}."
-            )
+            answer = f"You bought food {resolved.label}. Receipts: {detail}. Total: {totals}."
         return ToolResult(
             tool="get_purchases_by_date",
             arguments={**resolved.to_dict(), "raw_date": date_phrase},
@@ -263,9 +255,7 @@ class QueryService:
             warnings=resolved.warnings,
         )
 
-    def get_food_expenses_by_date(
-        self, date_phrase: str, as_of: date | None = None
-    ) -> ToolResult:
+    def get_food_expenses_by_date(self, date_phrase: str, as_of: date | None = None) -> ToolResult:
         resolved = resolve_date_range(date_phrase, today=as_of)
         totals = self.repository.total_expenses(
             resolved.start.isoformat(), resolved.end.isoformat(), status="saved"
@@ -371,8 +361,7 @@ class QueryService:
                 )
         if not receipts:
             answer = (
-                f"I could not find any saved purchases containing {item!r} in "
-                f"{resolved.label}."
+                f"I could not find any saved purchases containing {item!r} in {resolved.label}."
             )
         else:
             answer = f"You bought {item} from " + "; ".join(merchant_lines) + "."

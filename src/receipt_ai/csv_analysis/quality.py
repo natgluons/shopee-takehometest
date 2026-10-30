@@ -97,9 +97,7 @@ def profile_quality(path: str | Path) -> dict[str, Any]:
         "unexpected_columns": [name for name in frame.columns if name not in EXPECTED_COLUMNS],
         "exact_duplicate_rows": _to_int(frame.duplicated().sum()),
         "rows_with_any_null": _to_int(frame.isna().any(axis=1).sum()),
-        "column_quality": {
-            column: _column_quality(frame[column]) for column in frame.columns
-        },
+        "column_quality": {column: _column_quality(frame[column]) for column in frame.columns},
     }
 
     if "Customer Id" in frame:
