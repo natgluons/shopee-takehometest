@@ -120,6 +120,12 @@ def create_app(
             request, "history.html", {"active": "history"}
         )
 
+    @app.get("/query", response_class=HTMLResponse, include_in_schema=False)
+    def query_page(request: Request) -> HTMLResponse:
+        return templates.TemplateResponse(
+            request, "query.html", {"active": "query"}
+        )
+
     @app.exception_handler(ReceiptNotFoundError)
     async def receipt_not_found(_: Request, exc: ReceiptNotFoundError) -> JSONResponse:
         return JSONResponse({"detail": "receipt not found", "id": str(exc)}, status_code=404)

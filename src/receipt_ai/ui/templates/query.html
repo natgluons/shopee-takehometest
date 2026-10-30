@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Ask your receipts - Receipt AI{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">Grounded answers</p>
+    <h1>Ask your receipt history</h1>
+    <p class="lede">The assistant calls narrow tools that query SQLite. Every answer shows the tool arguments and the receipt evidence behind it.</p>
+  </div>
+</section>
+
+<section class="card">
+  <form id="query-form" class="query-form">
+    <label class="query-label">Your question
+      <textarea id="question" rows="2" placeholder="What food did I buy yesterday?"></textarea>
+    </label>
+    <div class="query-controls">
+      <label>As of date
+        <input type="date" id="as-of">
+      </label>
+      <button class="button" type="submit" id="ask-button">Ask</button>
+    </div>
+  </form>
+  <div class="examples">
+    <span class="muted">Try:</span>
+    <button class="example" type="button">What food did I buy yesterday?</button>
+    <button class="example" type="button">Give me total expenses for food on 20 June</button>
+    <button class="example" type="button">Where did I buy hamburger from last 7 days?</button>
+  </div>
+  <p id="query-status" class="status-inline"></p>
+</section>
+
+<section id="answer-card" class="card answer-card" hidden>
+  <div class="answer-heading">
+    <div>
+      <p class="eyebrow">Answer</p>
+      <h2 id="answer-text">-</h2>
+    </div>
+    <div id="answer-meta" class="pill-group"></div>
+  </div>
+  <div id="answer-warnings" class="warnings" hidden></div>
+  <div class="answer-grid">
+    <div>
+      <h3>Evidence</h3>
+      <ul id="evidence-list" class="evidence-list"></ul>
+    </div>
+    <div>
+      <h3>Tool calls</h3>
+      <pre id="tool-calls"></pre>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/query.js" defer></script>
+{% endblock %}
